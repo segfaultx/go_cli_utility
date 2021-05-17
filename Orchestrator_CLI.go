@@ -1,12 +1,10 @@
 package main
 
 import (
-	"encoding/json"
+	"Orchestrator_CLI/client"
+	"Orchestrator_CLI/constants"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"os"
 )
 
@@ -19,7 +17,6 @@ func main() {
 	flag.StringVar(&testName, "test_name", "", "name of test to perform action on")
 	flag.Parse()
 
-	outputColors[SUCCESS]("hi")
 	if action == "" {
 		printErrorForFlag("action")
 	}
@@ -27,43 +24,20 @@ func main() {
 		printErrorForFlag("test_name")
 	}
 
-	client := NewClient()
+	var orchestratorClient client.OrchestratorClient = client.New()
 
 	switch action {
 
-	case START:
-		client.StartTest(hostname, port, testName)
+	case constants.START:
+		orchestratorClient.StartTest(hostname, port, testName)
 		break
-	case STATUS:
-		getAndPrintTestStatus(hostname, port, testName)
+	case constants.STATUS:
+		orchestratorClient.GetAndPrintTestStatus(hostname, port, testName)
 	default:
 		flag.PrintDefaults()
-		fmt.Printf("\nInvalid argument for 'action', possible values: %s, %s, %s, %s\n", START, STOP, UPDATE, STATUS)
+		fmt.Printf("\nInvalid argument for 'action', possible values: %s, %s, %s, %s\n", constants.START, constants.STOP, constants.UPDATE, constants.STATUS)
 		os.Exit(-1)
 	}
-}
-
-func getAndPrintTestStatus(hostname string, port string, name string) {
-	connString := fmt.Sprintf("http://%s:%s/test/status", hostname, port)
-	response, err := http.Get(connString)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	printStatusResponse(response)
-}
-
-func printStatusResponse(response *http.Response) {
-	message, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(string(message))
-	msgBody := TestStatusReport{}
-	err = json.Unmarshal(message, &msgBody)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(msgBody)
 }
 
 func printErrorForFlag(flagName string) {
