@@ -4,45 +4,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
-
-type TestStatus string
-
-const (
-	SUCCESS   TestStatus = "SUCCESS"
-	PENDING              = "PENDING"
-	FAILED               = "FAILED"
-	EXECUTING            = "EXECUTING"
-)
-
-var (
-	START  = "start"
-	STOP   = "stop"
-	UPDATE = "update"
-	STATUS = "status"
-)
-
-type TestStatusReport struct {
-	Name      string                      `json:"name"`
-	Status    TestStatus                  `json:"status"`
-	Message   string                      `json:"message,omitempty"`
-	StartTime string                      `json:"startTime"`
-	Children  map[string]TestStatusReport `json:"children,omitempty"`
-}
-
-type PrintFuncType func(string, ...interface{})
-
-var outputColors = map[TestStatus]PrintFuncType{
-	SUCCESS:   color.Green,
-	FAILED:    color.Red,
-	PENDING:   color.Yellow,
-	EXECUTING: color.Blue,
-}
 
 func main() {
 
@@ -61,10 +27,12 @@ func main() {
 		printErrorForFlag("test_name")
 	}
 
+	client := NewClient()
+
 	switch action {
 
 	case START:
-		startTest(hostname, port, testName)
+		client.StartTest(hostname, port, testName)
 		break
 	case STATUS:
 		getAndPrintTestStatus(hostname, port, testName)
@@ -96,23 +64,6 @@ func printStatusResponse(response *http.Response) {
 		log.Fatalln(err)
 	}
 	fmt.Println(msgBody)
-}
-
-func startTest(hostname, port, testName string) {
-	connString := fmt.Sprintf("http://%s:%s/test/hello", hostname, port)
-	response, err := http.Get(connString)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	printResponse(response)
-}
-
-func printResponse(response *http.Response) {
-	message, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(string(message))
 }
 
 func printErrorForFlag(flagName string) {
