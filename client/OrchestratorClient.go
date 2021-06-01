@@ -1,7 +1,7 @@
 package client
 
 import (
-	"Orchestrator_CLI/testStatusReport"
+	"Orca/testStatusReport"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

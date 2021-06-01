@@ -1,4 +1,4 @@
-module Orchestrator_CLI
+module Orca 
 
 go 1.16
 

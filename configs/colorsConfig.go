@@ -1,7 +1,7 @@
 package configs
 
 import (
-	"Orchestrator_CLI/constants"
+	"Orca/constants"
 	"github.com/fatih/color"
 )
 

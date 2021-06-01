@@ -1,6 +1,6 @@
 package testStatusReport
 
-import "Orchestrator_CLI/constants"
+import "Orca/constants"
 
 type TestStatusReport struct {
 	Name      string                      `json:"name"`
