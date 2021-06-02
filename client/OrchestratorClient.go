@@ -1,17 +1,24 @@
 package client
 
 import (
+	"Orca/configs"
+	"Orca/constants"
 	"Orca/testStatusReport"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type OrchestratorClient interface {
 	StartTest(hostname, port, testName string)
 	GetAndPrintTestStatus(hostname, port, name string)
+	StopTest(hostname, port, testName string)
+	StartAllTests(hostname, port string)
+	StopAllTests(hostname, port string)
 }
 
 type DefaultOrchestratorClient struct{}
@@ -20,29 +27,28 @@ func New() *DefaultOrchestratorClient {
 	return &DefaultOrchestratorClient{}
 }
 
-func createBaseUrl(hostname, port string) string {
-	return fmt.Sprintf("http://%s:%s", hostname, port)
-}
-
 func (client *DefaultOrchestratorClient) StartTest(hostname, port, testName string) {
-	connString := fmt.Sprintf("%s/test/hello", createBaseUrl(hostname, port))
-	response, err := http.Get(connString)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	printResponse(response)
+	connString := fmt.Sprintf("%s/test/%s", createBaseUrl(hostname, port), testName)
+	executeHttpPostRequest(connString)
 }
 
-func printResponse(response *http.Response) {
-	message, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(string(message))
+func (client *DefaultOrchestratorClient) StartAllTests(hostname, port string) {
+	connString := fmt.Sprintf("%s/test", createBaseUrl(hostname, port))
+	executeHttpPostRequest(connString)
 }
 
-func (client *DefaultOrchestratorClient) GetAndPrintTestStatus(hostname, port, name string) {
-	connString := fmt.Sprintf("%s/test/status", createBaseUrl(hostname, port))
+func (client *DefaultOrchestratorClient) StopTest(hostname, port, testName string) {
+	connString := fmt.Sprintf("%s/test/stop/%s", createBaseUrl(hostname, port), testName)
+	executeHttpPostRequest(connString)
+}
+
+func (client *DefaultOrchestratorClient) StopAllTests(hostname, port string) {
+	connString := fmt.Sprintf("%s/test/stop", createBaseUrl(hostname, port))
+	executeHttpPostRequest(connString)
+}
+
+func (client *DefaultOrchestratorClient) GetAndPrintTestStatus(hostname, port, testName string) {
+	connString := fmt.Sprintf("%s/test/status/%s", createBaseUrl(hostname, port), testName)
 	response, err := http.Get(connString)
 	if err != nil {
 		log.Fatalln(err)
@@ -50,16 +56,78 @@ func (client *DefaultOrchestratorClient) GetAndPrintTestStatus(hostname, port, n
 	printStatusResponse(response)
 }
 
+func createBaseUrl(hostname, port string) string {
+	return fmt.Sprintf("http://%s:%s", hostname, port)
+}
+
+func executeHttpPostRequest(url string) {
+	response, err := http.Post(url, "", nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	printResponse(response)
+}
+
+func printResponseStatus(response *http.Response) {
+	fmt.Print("Status: ")
+	if response.StatusCode == 200 {
+		printFunc := configs.ResponseCodeColors[response.StatusCode]
+		printFunc("ok\n")
+	} else {
+		printFunc := configs.ResponseCodeColors[response.StatusCode]
+		printFunc("error (%s)\n", strconv.Itoa(response.StatusCode))
+	}
+}
+
+func printResponse(response *http.Response) {
+	message, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	printResponseStatus(response)
+	fmt.Println(string(message))
+}
+
 func printStatusResponse(response *http.Response) {
 	message, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(string(message))
+	printResponseStatus(response)
 	msgBody := testStatusReport.TestStatusReport{}
 	err = json.Unmarshal(message, &msgBody)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(msgBody)
+	printMessageIndented(msgBody, 0)
+}
+
+func printWithIndent(msg string, indent int) {
+	addIndentation(indent)
+	fmt.Print(msg)
+}
+
+func addIndentation(indentLevel int) {
+	fmt.Print(strings.Repeat(" ", indentLevel))
+}
+
+func printMessageIndented(report testStatusReport.TestStatusReport, level int) {
+	if level > 0 {
+		fmt.Printf("\n")
+	}
+	printWithIndent(fmt.Sprintf("Name: %s\n", report.Name), level)
+	printWithIndent(fmt.Sprintf("Start Time: %s\n", report.StartTime), level)
+	addIndentation(level)
+	fmt.Printf("Status: ")
+	configs.OutputColors[report.Status]("%s\n", report.Status)
+	if report.Status == constants.FAILED {
+		printWithIndent(fmt.Sprintf("Message: %s", report.Message), level)
+	}
+	fmt.Print("\n")
+	if report.Children != nil {
+		for _, child := range report.Children {
+			printWithIndent(fmt.Sprintf("Children:\n"), level)
+			printMessageIndented(child, level+1)
+		}
+	}
 }

@@ -14,7 +14,7 @@ func main() {
 	flag.StringVar(&hostname, "hostname", "localhost", "hostname")
 	flag.StringVar(&port, "port", "8080", "port number")
 	flag.StringVar(&action, "action", "", "action to perform")
-	flag.StringVar(&testName, "test_name", "", "name of test to perform action on")
+	flag.StringVar(&testName, "test_name", "", "name of test to perform action on, use 'ALL' for all tests")
 	flag.Parse()
 
 	if action == "" {
@@ -29,13 +29,27 @@ func main() {
 	switch action {
 
 	case constants.START:
-		orchestratorClient.StartTest(hostname, port, testName)
-		break
+		{
+			if testName == "ALL" {
+				orchestratorClient.StartAllTests(hostname, port)
+			} else {
+				orchestratorClient.StartTest(hostname, port, testName)
+			}
+		}
+	case constants.STOP:
+		if testName == "ALL" {
+			orchestratorClient.StopAllTests(hostname, port)
+		} else {
+			orchestratorClient.StopTest(hostname, port, testName)
+		}
+
 	case constants.STATUS:
 		orchestratorClient.GetAndPrintTestStatus(hostname, port, testName)
+
 	default:
 		flag.PrintDefaults()
-		fmt.Printf("\nInvalid argument for 'action', possible values: %s, %s, %s, %s\n", constants.START, constants.STOP, constants.UPDATE, constants.STATUS)
+		fmt.Printf("\nInvalid argument for 'action', possible values: %s, %s, %s, %s\n",
+			constants.START, constants.STOP, constants.UPDATE, constants.STATUS)
 		os.Exit(-1)
 	}
 }
