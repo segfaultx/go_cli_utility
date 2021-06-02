@@ -1,14 +1,14 @@
 package client
 
 import (
-	"Orca/configs"
-	"Orca/constants"
-	"Orca/testStatusReport"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"orca/configs"
+	"orca/constants"
+	"orca/testStatusReport"
 	"strconv"
 	"strings"
 )

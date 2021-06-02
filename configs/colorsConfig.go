@@ -1,7 +1,7 @@
 package configs
 
 import (
-	"Orca/constants"
+	"orca/constants"
 	"github.com/fatih/color"
 )
 

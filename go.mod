@@ -1,4 +1,4 @@
-module Orca 
+module orca
 
 go 1.16
 

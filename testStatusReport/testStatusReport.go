@@ -1,6 +1,6 @@
 package testStatusReport
 
-import "Orca/constants"
+import "orca/constants"
 
 type TestStatusReport struct {
 	Name      string                      `json:"name"`

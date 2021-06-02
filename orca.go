@@ -1,10 +1,10 @@
 package main
 
 import (
-	"Orca/client"
-	"Orca/constants"
 	"flag"
 	"fmt"
+	"orca/client"
+	"orca/constants"
 	"os"
 )
 
