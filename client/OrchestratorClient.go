@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +18,7 @@ type OrchestratorClient interface {
 	StartTest(hostname, port, testName string)
 	GetAndPrintTestStatus(hostname, port, name string)
 	StopTest(hostname, port, testName string)
-	StartAllTests(hostname, port string)
+	StartTests(hostname, port string, tests []string)
 }
 
 type DefaultOrchestratorClient struct{}
@@ -36,8 +37,16 @@ func (client *DefaultOrchestratorClient) StopTest(hostname, port, testName strin
 	executeHttpPostRequest(connString)
 }
 
-func (client *DefaultOrchestratorClient) StopAllTests(hostname, port string) {
-	connString := fmt.Sprintf("%s/test/stop", createBaseUrl(hostname, port))
+func (client *DefaultOrchestratorClient) StartTests(hostname, port string, tests []string) {
+	var buffer bytes.Buffer
+	for index := range tests {
+		if index == 0 {
+			buffer.WriteString(fmt.Sprintf("?test=%s", tests[index]))
+		}
+		buffer.WriteString(fmt.Sprintf("&test=%s", tests[index]))
+	}
+	connString := fmt.Sprintf("%s/test%s", createBaseUrl(hostname, port), buffer.String())
+	connString = strings.ReplaceAll(connString, " ", "%20")
 	executeHttpPostRequest(connString)
 }
 

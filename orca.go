@@ -6,6 +6,8 @@ import (
 	"orca/client"
 	"orca/constants"
 	"os"
+	"regexp"
+	"strings"
 )
 
 func main() {
@@ -30,18 +32,14 @@ func main() {
 
 	case constants.START:
 		{
-			if testName == "ALL" {
-				orchestratorClient.StartAllTests(hostname, port)
+			if matched, _ := regexp.MatchString("([\\w\\W]+,[\\w\\W]+)+", testName); matched {
+				orchestratorClient.StartTests(hostname, port, strings.Split(testName, ","))
 			} else {
 				orchestratorClient.StartTest(hostname, port, testName)
 			}
 		}
 	case constants.STOP:
-		if testName == "ALL" {
-			orchestratorClient.StopAllTests(hostname, port)
-		} else {
-			orchestratorClient.StopTest(hostname, port, testName)
-		}
+		orchestratorClient.StopTest(hostname, port, testName)
 
 	case constants.STATUS:
 		orchestratorClient.GetAndPrintTestStatus(hostname, port, testName)
