@@ -18,7 +18,6 @@ type OrchestratorClient interface {
 	GetAndPrintTestStatus(hostname, port, name string)
 	StopTest(hostname, port, testName string)
 	StartAllTests(hostname, port string)
-	StopAllTests(hostname, port string)
 }
 
 type DefaultOrchestratorClient struct{}
@@ -29,11 +28,6 @@ func New() *DefaultOrchestratorClient {
 
 func (client *DefaultOrchestratorClient) StartTest(hostname, port, testName string) {
 	connString := fmt.Sprintf("%s/test/%s", createBaseUrl(hostname, port), testName)
-	executeHttpPostRequest(connString)
-}
-
-func (client *DefaultOrchestratorClient) StartAllTests(hostname, port string) {
-	connString := fmt.Sprintf("%s/test", createBaseUrl(hostname, port))
 	executeHttpPostRequest(connString)
 }
 
