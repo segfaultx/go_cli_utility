@@ -86,7 +86,22 @@ func printResponse(response *http.Response) {
 		log.Fatalln(err)
 	}
 	printResponseStatus(response)
-	fmt.Println(string(message))
+	if response.StatusCode == 200 {
+		fmt.Println(string(message))
+	} else {
+		var resp map[string]interface{}
+		err = json.Unmarshal(message, &resp)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		msg, exists := resp["message"]
+
+		if !exists {
+			log.Fatalln(resp)
+		}
+		fmt.Println(msg)
+	}
+
 }
 
 func printStatusResponse(response *http.Response) {
