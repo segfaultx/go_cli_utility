@@ -1,13 +1,14 @@
 .PHONY: clean
 
 run: build
-	./Orchestrator_CLI
+	./orca
 clean:
-	rm Orchestrator_CLI
+	rm orca
 
 build:
 	go build
 
-windows: Orchestrator_CLI.go
+windows: orca.go
 	env GOOS=windows GOARCH=amd64 go build
-
+macos: orca.go
+	env GOOS=darwin GOARCH=amd64 go build

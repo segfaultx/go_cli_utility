@@ -125,8 +125,13 @@ func printMessageIndented(report testStatusReport.TestStatusReport, level int) {
 	}
 	fmt.Print("\n")
 	if report.Children != nil {
-		for _, child := range report.Children {
+		if level == 0 {
 			printWithIndent(fmt.Sprintf("Children:\n"), level)
+		} else {
+			printWithIndent(fmt.Sprintf("Steps:\n"), level)
+		}
+
+		for _, child := range report.Children {
 			printMessageIndented(child, level+1)
 		}
 	}
