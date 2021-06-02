@@ -115,7 +115,7 @@ func printStatusResponse(response *http.Response) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	printMessageIndented(msgBody, 0)
+	printStatusReport(msgBody, 0)
 }
 
 func printWithIndent(msg string, indent int) {
@@ -127,7 +127,7 @@ func addIndentation(indentLevel int) {
 	fmt.Print(strings.Repeat(" ", indentLevel))
 }
 
-func printMessageIndented(report testStatusReport.TestStatusReport, level int) {
+func printStatusReport(report testStatusReport.TestStatusReport, level int) {
 	if level > 0 {
 		fmt.Printf("\n")
 	}
@@ -148,7 +148,7 @@ func printMessageIndented(report testStatusReport.TestStatusReport, level int) {
 		}
 
 		for _, child := range report.Children {
-			printMessageIndented(child, level+1)
+			printStatusReport(child, level+1)
 		}
 	}
 }
