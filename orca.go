@@ -16,7 +16,8 @@ func main() {
 	flag.StringVar(&hostname, "hostname", "localhost", "hostname")
 	flag.StringVar(&port, "port", "8080", "port number")
 	flag.StringVar(&action, "action", "", "action to perform")
-	flag.StringVar(&testName, "test_name", "", "name of test to perform action on, use 'ALL' for all tests")
+	flag.StringVar(&testName, "test_name", "",
+		"name of test to perform action on, you can start multiple tests listing them comma separated e.g.: 'A,B,C'")
 	flag.Parse()
 
 	if action == "" {
