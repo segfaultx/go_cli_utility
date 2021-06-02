@@ -39,10 +39,8 @@ func (client *DefaultOrchestratorClient) StopTest(hostname, port, testName strin
 
 func (client *DefaultOrchestratorClient) StartTests(hostname, port string, tests []string) {
 	var buffer bytes.Buffer
-	for index := range tests {
-		if index == 0 {
-			buffer.WriteString(fmt.Sprintf("?test=%s", tests[index]))
-		}
+	buffer.WriteString(fmt.Sprintf("?test=%s", tests[0]))
+	for index := range tests[1:] {
 		buffer.WriteString(fmt.Sprintf("&test=%s", tests[index]))
 	}
 	connString := fmt.Sprintf("%s/test%s", createBaseUrl(hostname, port), buffer.String())
