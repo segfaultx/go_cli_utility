@@ -28,12 +28,12 @@ func New() *DefaultOrchestratorClient {
 }
 
 func (client *DefaultOrchestratorClient) StartTest(hostname, port, testName string) {
-	connString := fmt.Sprintf("%s/test/%s", createBaseUrl(hostname, port), testName)
+	connString := fmt.Sprintf("%s/orchestration/%s", createBaseUrl(hostname, port), testName)
 	executeHttpPostRequest(connString)
 }
 
 func (client *DefaultOrchestratorClient) StopTest(hostname, port, testName string) {
-	connString := fmt.Sprintf("%s/test/stop/%s", createBaseUrl(hostname, port), testName)
+	connString := fmt.Sprintf("%s/orchestration/stop/%s", createBaseUrl(hostname, port), testName)
 	executeHttpPostRequest(connString)
 }
 
@@ -43,13 +43,13 @@ func (client *DefaultOrchestratorClient) StartTests(hostname, port string, tests
 	for index := range tests[1:] {
 		buffer.WriteString(fmt.Sprintf("&test=%s", tests[index]))
 	}
-	connString := fmt.Sprintf("%s/test%s", createBaseUrl(hostname, port), buffer.String())
+	connString := fmt.Sprintf("%s/orchestration%s", createBaseUrl(hostname, port), buffer.String())
 	connString = strings.ReplaceAll(connString, " ", "%20")
 	executeHttpPostRequest(connString)
 }
 
 func (client *DefaultOrchestratorClient) GetAndPrintTestStatus(hostname, port, testName string) {
-	connString := fmt.Sprintf("%s/test/status/%s", createBaseUrl(hostname, port), testName)
+	connString := fmt.Sprintf("%s/orchestration/status/%s", createBaseUrl(hostname, port), testName)
 	response, err := http.Get(connString)
 	if err != nil {
 		log.Fatalln(err)
